@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SysUser {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  employeeId   String?
+  status       String   @default("enabled")
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  parentId  String?
+  name      String
+  code      String   @unique
+  managerId String?
+  sortNo    Int      @default(0)
+  status    String   @default("enabled")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Position {
+  id        String   @id @default(uuid())
+  deptId    String
+  name      String
+  level     String?
+  headcount Int      @default(0)
+  status    String   @default("enabled")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employee {
+  id              String   @id @default(uuid())
+  employeeNo      String   @unique
+  name            String
+  gender          String?
+  departmentId    String
+  positionId      String
+  phone           String?
+  hireDate        DateTime
+  status          String
+  contractEndDate DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model WorkflowInstance {
+  id        String   @id @default(uuid())
+  bizType   String
+  bizId     String
+  starterId String
+  status    String
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+}
+
+model WorkflowTask {
+  id         String   @id @default(uuid())
+  instanceId String
+  assigneeId String
+  nodeName   String
+  action     String?
+  comment    String?
+  status     String
+  createdAt  DateTime @default(now())
+  handledAt  DateTime?
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorId      String
+  action       String
+  resourceType String
+  resourceId   String
+  ip           String?
+  createdAt    DateTime @default(now())
+}

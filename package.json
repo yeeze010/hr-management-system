@@ -1,0 +1,20 @@
+{
+  "name": "hr-management-system",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:backend dev:frontend",
+    "dev:frontend": "npm --workspace apps/frontend run dev",
+    "dev:backend": "npm --workspace apps/backend run dev",
+    "build": "npm --workspace apps/backend run build && npm --workspace apps/frontend run build",
+    "test": "npm --workspace apps/backend run test && npm --workspace apps/frontend run test",
+    "lint": "npm --workspace apps/backend run lint && npm --workspace apps/frontend run lint"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

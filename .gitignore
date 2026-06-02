@@ -42,6 +42,7 @@ deliverables/docs/rendered/
 # Uploads and local data
 uploads/
 tmp/
+.tmp/
 data/
 minio-data/
 postgres-data/
