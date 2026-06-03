@@ -16,8 +16,8 @@ npm run dev
 
 访问地址：
 
-- 前端：http://localhost:5173
-- 后端：http://localhost:3000/api/health
+- 前端：http://localhost:5190
+- 后端：http://localhost:3106/api/health
 
 ## 当前 MVP 范围
 
