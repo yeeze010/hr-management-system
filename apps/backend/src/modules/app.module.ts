@@ -5,6 +5,7 @@ import { EmployeesController } from "./employees/employees.controller";
 import { HealthController } from "./health/health.controller";
 import { ReportsController } from "./reports/reports.controller";
 import { WorkflowController } from "./workflow/workflow.controller";
+import { WorkforceIntelligenceController } from "./intelligence/workforce-intelligence.controller";
 import { HrDataService } from "./shared/hr-data.service";
 
 @Module({
@@ -15,6 +16,7 @@ import { HrDataService } from "./shared/hr-data.service";
     HealthController,
     ReportsController,
     WorkflowController,
+    WorkforceIntelligenceController,
   ],
   providers: [HrDataService],
 })

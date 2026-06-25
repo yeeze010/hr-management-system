@@ -18,6 +18,38 @@ model SysUser {
   updatedAt    DateTime @updatedAt
 }
 
+model Role {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  builtin     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  resource    String
+  action      String
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  @@id([roleId, permissionId])
+}
+
 model Department {
   id        String   @id @default(uuid())
   parentId  String?
@@ -54,6 +86,36 @@ model Employee {
   contractEndDate DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model ContractRenewalRisk {
+  id                 String   @id @default(uuid())
+  employeeId         String
+  daysRemaining      Int
+  riskLevel          String
+  reason             String
+  recommendedActions Json
+  snapshotDate       DateTime @default(now())
+}
+
+model OnboardingChecklist {
+  id         String   @id @default(uuid())
+  employeeId String
+  ownerId    String?
+  progress   Int      @default(0)
+  status     String   @default("active")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model OnboardingChecklistItem {
+  id          String   @id @default(uuid())
+  checklistId String
+  title       String
+  owner       String
+  dueDate     DateTime
+  status      String   @default("pending")
+  completedAt DateTime?
 }
 
 model WorkflowInstance {
