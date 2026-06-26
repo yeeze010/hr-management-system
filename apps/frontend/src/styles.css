@@ -70,6 +70,7 @@ textarea {
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 input,
@@ -94,9 +95,19 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid rgba(139, 157, 131, 0.26);
+  outline: 3px solid rgba(96, 108, 56, 0.72);
   outline-offset: 2px;
   border-color: rgba(96, 108, 56, 0.36);
+}
+
+button:disabled,
+button[aria-disabled="true"],
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+  transform: none !important;
 }
 
 #app {
@@ -438,7 +449,8 @@ textarea:focus-visible {
 }
 
 .text-button {
-  padding: 0;
+  min-height: 44px;
+  padding: 0 0.5rem;
   border: 0;
   background: transparent;
   color: var(--moss);
@@ -451,6 +463,15 @@ textarea:focus-visible {
 .nav-item:hover,
 .interactive:hover {
   transform: translateY(-1px);
+}
+
+.primary-button:active,
+.secondary-button:active,
+.menu-toggle:active,
+.status-button:active,
+.nav-item:active,
+.interactive:active {
+  transform: translateY(0);
 }
 
 .menu-toggle {
