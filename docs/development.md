@@ -16,35 +16,33 @@ npm run dev
 
 访问地址：
 
-- 前端：http://localhost:5190
-- 后端：http://localhost:3106/api/health
+- 前端：`http://localhost:5216`
+- 前端预览：`http://localhost:6216`
+- 后端：`http://localhost:8216/api/health`
 
 ## 当前 MVP 范围
 
-已完成第一版可运行骨架：
+当前仓库已完成可运行的第一版骨架：
 
 - 后端 NestJS API
 - 前端 Vue 3 + TypeScript 管理后台
-- 工作台指标
-- 员工档案列表、筛选、新增
-- 审批待办、通过、驳回
-- 报表中心基础统计
-- PostgreSQL 数据模型草案
+- 工作台指标、员工档案、审批中心、报表中心基础界面
+- PostgreSQL Prisma 数据模型草案
 - Docker + Nginx + PostgreSQL + Redis + MinIO 部署编排
 
 ## 推荐迭代顺序
 
-1. 接入真实 PostgreSQL 持久化。
-2. 实现 JWT 鉴权、角色权限、菜单权限和数据范围。
-3. 完成员工档案详情、合同附件、批量导入。
-4. 完成入转调离、考勤请假、绩效培训流程。
-5. 完成薪酬基础数据、人事报表、审计日志。
-6. 补充自动化测试、CI/CD 和验收报告。
+1. 接入真实 PostgreSQL 与 Prisma Client
+2. 建立 JWT、角色权限、菜单权限和数据范围
+3. 完成员工详情、合同附件、批量导入
+4. 完成入转调离、请假、编制等流程模块
+5. 完成报表深化、审计日志和验收回归
 
 ## API 摘要
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
+| `GET` | `/api/health` | 健康检查 |
 | `POST` | `/api/auth/login` | 登录 |
 | `GET` | `/api/dashboard/summary` | 工作台汇总 |
 | `GET` | `/api/employees` | 员工列表 |
@@ -52,16 +50,17 @@ npm run dev
 | `GET` | `/api/departments` | 部门列表 |
 | `GET` | `/api/workflow-tasks/my` | 我的审批 |
 | `POST` | `/api/workflow-tasks/:id/action` | 审批处理 |
-| `GET` | `/api/reports/overview` | 报表汇总 |
+| `GET` | `/api/reports/overview` | 报表概览 |
 
-## 验收检查
+## 验收基线
 
 ```bash
 npm run build
 npm run test
+npm run lint
 ```
 
-如果要部署完整环境：
+如需完整容器环境验证：
 
 ```bash
 docker compose up -d --build

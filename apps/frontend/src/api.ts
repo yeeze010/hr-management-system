@@ -1,3 +1,5 @@
+export type EmployeeStatus = "在职" | "试用" | "待入职" | "离职";
+
 export interface Employee {
   id: string;
   employeeNo: string;
@@ -6,7 +8,7 @@ export interface Employee {
   position: string;
   phone: string;
   hireDate: string;
-  status: "在职" | "试用" | "待入职" | "离职";
+  status: EmployeeStatus;
   contractEndDate: string;
 }
 
@@ -25,6 +27,12 @@ export interface DashboardSummary {
   departments: Array<{ id: string; name: string; manager: string; headcount: number }>;
   recentEmployees: Employee[];
   pendingTasks: WorkflowTask[];
+}
+
+export interface ReportOverview {
+  headcountByDepartment: Array<{ department: string; headcount: number }>;
+  statusDistribution: Array<{ status: EmployeeStatus; count: number }>;
+  riskItems: Array<{ item: string; count: number; owner: string }>;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";

@@ -5,8 +5,11 @@ import { AppModule } from "./modules/app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const allowedOrigins = (process.env.FRONTEND_ORIGIN ?? "http://localhost:5216,http://localhost:6216")
+    .split(",")
+    .map((origin) => origin.trim());
   app.enableCors({
-    origin: process.env.FRONTEND_ORIGIN ?? "http://localhost:5190",
+    origin: allowedOrigins,
     credentials: true,
   });
   app.setGlobalPrefix("api");
@@ -17,7 +20,7 @@ async function bootstrap() {
     }),
   );
 
-  const port = Number(process.env.PORT ?? 3106);
+  const port = Number(process.env.API_PORT ?? process.env.PORT ?? 8216);
   await app.listen(port);
 }
 

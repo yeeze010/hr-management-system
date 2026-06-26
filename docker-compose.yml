@@ -43,8 +43,9 @@ services:
       dockerfile: apps/backend/Dockerfile
     container_name: hr-backend
     environment:
-      PORT: 3000
-      FRONTEND_ORIGIN: http://localhost:8080
+      API_PORT: 8216
+      PORT: 8216
+      FRONTEND_ORIGIN: http://localhost:5216
       DATABASE_URL: postgresql://hr_user:hr_password@postgres:5432/hr_management
       REDIS_URL: redis://redis:6379
       MINIO_ENDPOINT: minio
@@ -52,7 +53,7 @@ services:
       MINIO_ACCESS_KEY: hrminio
       MINIO_SECRET_KEY: hrminio123
     ports:
-      - "3000:3000"
+      - "8216:8216"
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,7 +68,7 @@ services:
       dockerfile: apps/frontend/Dockerfile
     container_name: hr-frontend
     ports:
-      - "8080:80"
+      - "5216:80"
     depends_on:
       - backend
 

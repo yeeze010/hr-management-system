@@ -47,3 +47,8 @@ data/
 minio-data/
 postgres-data/
 redis-data/
+.next/
+.nuxt/
+coverage/
+.env.local
+.vscode/.history/
