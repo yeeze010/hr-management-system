@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SysUser {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  employeeId   String?
+  status       String   @default("enabled")
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  builtin     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  resource    String
+  action      String
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  @@id([roleId, permissionId])
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  parentId  String?
+  name      String
+  code      String   @unique
+  managerId String?
+  sortNo    Int      @default(0)
+  status    String   @default("enabled")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Position {
+  id        String   @id @default(uuid())
+  deptId    String
+  name      String
+  level     String?
+  headcount Int      @default(0)
+  status    String   @default("enabled")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employee {
+  id              String   @id @default(uuid())
+  employeeNo      String   @unique
+  name            String
+  gender          String?
+  departmentId    String
+  positionId      String
+  phone           String?
+  hireDate        DateTime
+  status          String
+  contractEndDate DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ContractRenewalRisk {
+  id                 String   @id @default(uuid())
+  employeeId         String
+  daysRemaining      Int
+  riskLevel          String
+  reason             String
+  recommendedActions Json
+  snapshotDate       DateTime @default(now())
+}
+
+model OnboardingChecklist {
+  id         String   @id @default(uuid())
+  employeeId String
+  ownerId    String?
+  progress   Int      @default(0)
+  status     String   @default("active")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model OnboardingChecklistItem {
+  id          String   @id @default(uuid())
+  checklistId String
+  title       String
+  owner       String
+  dueDate     DateTime
+  status      String   @default("pending")
+  completedAt DateTime?
+}
+
+model WorkflowInstance {
+  id        String   @id @default(uuid())
+  bizType   String
+  bizId     String
+  starterId String
+  status    String
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+}
+
+model WorkflowTask {
+  id         String   @id @default(uuid())
+  instanceId String
+  assigneeId String
+  nodeName   String
+  action     String?
+  comment    String?
+  status     String
+  createdAt  DateTime @default(now())
+  handledAt  DateTime?
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorId      String
+  action       String
+  resourceType String
+  resourceId   String
+  ip           String?
+  createdAt    DateTime @default(now())
+}

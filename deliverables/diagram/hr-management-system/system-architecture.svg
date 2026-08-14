@@ -1,0 +1,135 @@
+<svg viewBox="0 0 1180 760" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    text { font-family: 'JetBrains Mono', 'Noto Sans SC', 'PingFang SC', sans-serif; }
+    .title { fill: #f8fafc; font-size: 18px; font-weight: 700; }
+    .subtitle { fill: #94a3b8; font-size: 10px; }
+    .label { fill: #f8fafc; font-size: 12px; font-weight: 600; text-anchor: middle; }
+    .sub { fill: #94a3b8; font-size: 9px; text-anchor: middle; }
+    .tiny { fill: #cbd5e1; font-size: 8px; text-anchor: middle; }
+    .region { fill: none; stroke: #fbbf24; stroke-width: 1.2; stroke-dasharray: 10 5; }
+    .region-label { fill: #fbbf24; font-size: 10px; font-weight: 600; }
+    .primary { fill: rgba(8,51,68,.4); stroke: #22d3ee; }
+    .secondary { fill: rgba(6,78,59,.4); stroke: #34d399; }
+    .tertiary { fill: rgba(76,29,149,.4); stroke: #a78bfa; }
+    .accent { fill: rgba(120,53,15,.3); stroke: #fbbf24; }
+    .alert { fill: rgba(136,19,55,.4); stroke: #fb7185; }
+    .connector { fill: rgba(251,146,60,.3); stroke: #fb923c; }
+    .neutral { fill: rgba(30,41,59,.5); stroke: #94a3b8; }
+    .box { rx: 8; stroke-width: 1.5; }
+    .line { fill: none; stroke: #64748b; stroke-width: 1.4; marker-end: url(#arrow); }
+    .line-cyan { fill: none; stroke: #22d3ee; stroke-width: 1.5; marker-end: url(#arrow-cyan); }
+    .line-orange { fill: none; stroke: #fb923c; stroke-width: 1.5; marker-end: url(#arrow-orange); }
+  </style>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#fb923c"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="760" fill="#0f172a"/>
+  <rect width="1180" height="760" fill="url(#grid)"/>
+
+  <text x="34" y="38" class="title">人事全流程与组织效能管理系统 - 系统架构图</text>
+  <text x="34" y="58" class="subtitle">Vue 3 + TypeScript / Spring Boot / PostgreSQL / Redis / MinIO / Docker + Nginx</text>
+
+  <rect x="260" y="80" width="880" height="590" rx="14" class="region"/>
+  <text x="276" y="101" class="region-label">Docker Compose / Kubernetes-ready Runtime</text>
+  <rect x="290" y="120" width="820" height="470" rx="12" fill="none" stroke="#fb7185" stroke-width="1" stroke-dasharray="5 5"/>
+  <text x="306" y="139" fill="#fb7185" font-size="9" font-weight="600">Internal Network / Security Boundary</text>
+
+  <rect x="40" y="150" width="160" height="62" class="box neutral"/>
+  <text x="120" y="176" class="label">员工 / HR / 主管</text>
+  <text x="120" y="193" class="sub">浏览器访问后台</text>
+  <rect x="40" y="260" width="160" height="62" class="box neutral"/>
+  <text x="120" y="286" class="label">移动端 Web</text>
+  <text x="120" y="303" class="sub">审批与自助查询</text>
+  <rect x="40" y="370" width="160" height="62" class="box neutral"/>
+  <text x="120" y="396" class="label">第三方系统</text>
+  <text x="120" y="413" class="sub">邮件 / 企业微信 / 财务</text>
+
+  <rect x="300" y="155" width="170" height="62" class="box primary"/>
+  <text x="385" y="181" class="label">Nginx</text>
+  <text x="385" y="198" class="sub">TLS / 静态资源 / 反向代理</text>
+  <rect x="300" y="270" width="170" height="62" class="box primary"/>
+  <text x="385" y="296" class="label">Vue 3 Admin</text>
+  <text x="385" y="313" class="sub">管理后台 / 自助门户</text>
+  <rect x="300" y="385" width="170" height="62" class="box accent"/>
+  <text x="385" y="411" class="label">API Gateway</text>
+  <text x="385" y="428" class="sub">限流 / 鉴权入口 / 日志</text>
+
+  <rect x="560" y="125" width="165" height="58" class="box secondary"/>
+  <text x="642.5" y="149" class="label">认证权限服务</text>
+  <text x="642.5" y="166" class="sub">RBAC / JWT / SSO</text>
+  <rect x="785" y="125" width="165" height="58" class="box secondary"/>
+  <text x="867.5" y="149" class="label">组织员工服务</text>
+  <text x="867.5" y="166" class="sub">部门 / 岗位 / 档案</text>
+  <rect x="560" y="220" width="165" height="58" class="box secondary"/>
+  <text x="642.5" y="244" class="label">招聘入职服务</text>
+  <text x="642.5" y="261" class="sub">候选人 / Offer / 入职</text>
+  <rect x="785" y="220" width="165" height="58" class="box secondary"/>
+  <text x="867.5" y="244" class="label">考勤假勤服务</text>
+  <text x="867.5" y="261" class="sub">打卡 / 请假 / 加班</text>
+  <rect x="560" y="315" width="165" height="58" class="box secondary"/>
+  <text x="642.5" y="339" class="label">薪酬绩效服务</text>
+  <text x="642.5" y="356" class="sub">薪资 / 绩效 / 社保</text>
+  <rect x="785" y="315" width="165" height="58" class="box secondary"/>
+  <text x="867.5" y="339" class="label">流程通知服务</text>
+  <text x="867.5" y="356" class="sub">审批流 / 消息 / 待办</text>
+  <rect x="560" y="410" width="165" height="58" class="box secondary"/>
+  <text x="642.5" y="434" class="label">报表审计服务</text>
+  <text x="642.5" y="451" class="sub">统计 / 导出 / 操作日志</text>
+
+  <rect x="520" y="510" width="480" height="34" rx="6" class="connector"/>
+  <text x="760" y="532" class="tiny">Async Event Bus: 入职完成 / 审批通过 / 薪资生成 / 通知发送</text>
+
+  <g transform="translate(1020,150)">
+    <rect x="0" y="12" width="110" height="58" rx="2" fill="#0f172a"/>
+    <ellipse cx="55" cy="12" rx="55" ry="12" fill="#0f172a"/>
+    <ellipse cx="55" cy="70" rx="55" ry="12" fill="#0f172a"/>
+    <rect x="0" y="12" width="110" height="58" class="tertiary"/>
+    <ellipse cx="55" cy="12" rx="55" ry="12" class="tertiary" stroke-width="1.5"/>
+    <ellipse cx="55" cy="70" rx="55" ry="12" class="tertiary" stroke-width="1.5"/>
+    <line x1="0" y1="12" x2="0" y2="70" stroke="#a78bfa" stroke-width="1.5"/>
+    <line x1="110" y1="12" x2="110" y2="70" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="55" y="39" class="label">PostgreSQL</text>
+    <text x="55" y="56" class="sub">业务主库</text>
+  </g>
+  <rect x="1020" y="290" width="110" height="60" class="box tertiary"/>
+  <text x="1075" y="315" class="label">Redis</text>
+  <text x="1075" y="332" class="sub">缓存 / 会话 / 队列</text>
+  <rect x="1020" y="410" width="110" height="60" class="box tertiary"/>
+  <text x="1075" y="435" class="label">MinIO</text>
+  <text x="1075" y="452" class="sub">合同 / 附件 / 导入</text>
+
+  <path d="M 200 181 L 300 181" class="line-cyan"/>
+  <path d="M 200 291 L 300 291" class="line-cyan"/>
+  <path d="M 200 401 L 300 401" class="line"/>
+  <path d="M 385 217 L 385 270" class="line-cyan"/>
+  <path d="M 385 332 L 385 385" class="line-cyan"/>
+  <path d="M 470 416 L 535 416 L 535 154 L 560 154" class="line"/>
+  <path d="M 470 416 L 535 416 L 535 249 L 560 249" class="line"/>
+  <path d="M 470 416 L 535 416 L 535 344 L 560 344" class="line"/>
+  <path d="M 470 416 L 535 416 L 535 439 L 560 439" class="line"/>
+  <path d="M 725 154 L 785 154" class="line"/>
+  <path d="M 725 249 L 785 249" class="line"/>
+  <path d="M 725 344 L 785 344" class="line"/>
+  <path d="M 950 154 L 1020 190" class="line"/>
+  <path d="M 950 249 L 1020 190" class="line"/>
+  <path d="M 950 344 L 1020 320" class="line"/>
+  <path d="M 725 439 L 1020 440" class="line"/>
+  <path d="M 642 468 L 642 510" class="line-orange"/>
+  <path d="M 868 373 L 868 510" class="line-orange"/>
+  <path d="M 760 544 L 1075 544 L 1075 470" class="line-orange"/>
+
+  <rect x="700" y="615" width="410" height="36" rx="6" fill="rgba(30,41,59,.8)" stroke="#475569"/>
+  <text x="905" y="638" fill="#cbd5e1" font-size="9" text-anchor="middle">关键质量属性：权限隔离、审计留痕、流程可配置、附件可追溯、容器化部署、备份恢复</text>
+</svg>

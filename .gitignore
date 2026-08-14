@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+target/
+dist/
+build/
+.vite/
+
+# Runtime and local environment
+.env
+.env.*
+!.env.example
+logs/
+*.log
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Java / Spring Boot
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+out/
+
+# Node / Vue
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python helper cache
+__pycache__/
+*.py[cod]
+
+# Generated QA intermediates
+deliverables/docs/rendered/
+
+# Uploads and local data
+uploads/
+tmp/
+.tmp/
+data/
+minio-data/
+postgres-data/
+redis-data/
+.next/
+.nuxt/
+coverage/
+.env.local
+.vscode/.history/
