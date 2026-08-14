@@ -1,4 +1,4 @@
-# HR Management System Design Checklist
+# 人事全流程与组织效能管理系统 Design Checklist
 
 This project uses `design-system/MASTER.md` as the global source of truth.
 
@@ -21,7 +21,7 @@ Human resources operations cockpit for role-based employee, recruitment, attenda
 
 ## Implementation Notes
 
-- Keep the product name as `人力资源管理系统` / `HR Management System`.
+- Keep the product name as `人事全流程与组织效能管理系统` / `人事全流程与组织效能管理系统`.
 - Do not load app data before successful role login.
 - Prefer existing component classes and CSS tokens before adding new patterns.
 - Every new control must have visible focus, disabled semantics when unavailable, and a touch target of at least 44px.

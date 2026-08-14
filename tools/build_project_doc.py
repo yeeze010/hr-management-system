@@ -8,7 +8,7 @@ from docx.oxml.ns import qn
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "deliverables" / "docs" / "HR管理系统项目规格与实施方案.docx"
+OUT = ROOT / "deliverables" / "docs" / "人事全流程与组织效能管理系统项目规格与实施方案.docx"
 
 
 def set_cell_shading(cell, color):
@@ -93,7 +93,7 @@ styles["Normal"].font.size = Pt(10.5)
 
 title = doc.add_paragraph()
 title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = title.add_run("HR 管理系统项目规格与实施方案")
+r = title.add_run("人事全流程与组织效能管理系统项目规格与实施方案")
 r.font.name = "Microsoft YaHei"
 r._element.rPr.rFonts.set(qn("w:eastAsia"), "Microsoft YaHei")
 r.bold = True
@@ -109,7 +109,7 @@ r.font.size = Pt(11)
 r.font.color.rgb = RGBColor(89, 89, 89)
 
 meta = [
-    ("项目名称", "HR 管理系统"),
+    ("项目名称", "人事全流程与组织效能管理系统"),
     ("建议技术栈", "Vue 3 + TypeScript / Spring Boot / PostgreSQL / Redis / MinIO / Docker + Nginx"),
     ("目标读者", "项目负责人、产品经理、前后端开发、测试、运维、业务验收人"),
     ("交付用途", "立项评审、开发启动、迭代执行、测试验收、上线准备"),
@@ -117,7 +117,7 @@ meta = [
 add_table(doc, ["字段", "内容"], meta, [1.6, 5.8])
 
 heading(doc, "1. 项目概述")
-para(doc, "本项目建设一套面向中小型至集团化企业的人力资源管理系统，覆盖组织员工档案、招聘入职、考勤假勤、薪酬绩效、合同附件、流程审批、报表分析、权限审计等核心能力。系统以管理后台为主，兼顾员工自助门户与移动端审批，目标是在统一的数据模型和权限体系下支撑 HR 日常运营、管理决策和合规留痕。")
+para(doc, "本项目建设一套面向中小型至集团化企业的人事全流程与组织效能管理系统，覆盖组织员工档案、招聘入职、考勤假勤、薪酬绩效、合同附件、流程审批、报表分析、权限审计等核心能力。系统以管理后台为主，兼顾员工自助门户与移动端审批，目标是在统一的数据模型和权限体系下支撑 HR 日常运营、管理决策和合规留痕。")
 
 heading(doc, "2. 建设目标")
 bullets(doc, [
@@ -289,7 +289,7 @@ bullets(doc, [
     "系统架构图：deliverables/diagram/hr-management-system/system-architecture.svg",
     "业务流程图：deliverables/diagram/hr-management-system/business-flow.svg",
     "数据流图：deliverables/diagram/hr-management-system/data-flow.svg",
-    "项目管理工作簿：deliverables/spreadsheets/HR管理系统项目管理工作簿.xlsx"
+    "项目管理工作簿：deliverables/spreadsheets/人事全流程与组织效能管理系统项目管理工作簿.xlsx"
 ])
 
 OUT.parent.mkdir(parents=True, exist_ok=True)

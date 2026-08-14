@@ -6,7 +6,7 @@ export class HealthController {
   health() {
     return {
       status: "UP",
-      service: "hr-management-backend",
+      service: "人事全流程与组织效能管理系统",
       checkedAt: new Date().toISOString(),
     };
   }

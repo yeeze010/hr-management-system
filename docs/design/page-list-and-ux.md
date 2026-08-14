@@ -8,7 +8,7 @@
 
 ```mermaid
 mindmap
-  root((HR 管理系统))
+  root((人事全流程与组织效能管理系统))
     工作台
       待办审批
       合同提醒

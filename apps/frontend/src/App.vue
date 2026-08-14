@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import type { DashboardSummary, Employee, EmployeeStatus, ReportOverview, WorkflowTask } from "./api";
-import { request } from "./api";
+import { clearAuthToken, request, setAuthToken } from "./api";
 
 type ViewKey =
   | "dashboard"
@@ -185,12 +185,6 @@ const lifecycleCases = ref<LifecycleCase[]>([
   { id: "LC-1025", employee: "赵宁", type: "离职", stage: "资产归还与归档", owner: "许晴", due: "06-16", progress: 85, status: "待处理" },
 ]);
 
-const attendanceRequests = ref<AttendanceRequest[]>([
-  { id: "AT-018", employee: "许晴", type: "年假", period: "06-12 至 06-14", duration: "3 天", status: "待审批" },
-  { id: "AT-017", employee: "李安", type: "补卡", period: "06-05 09:00", duration: "1 次", status: "已通过" },
-  { id: "AT-016", employee: "周远", type: "加班", period: "06-03 19:00-22:00", duration: "3 小时", status: "已通过" },
-]);
-
 const candidates = ref<Candidate[]>([
   { id: "RC-2041", name: "沈嘉", role: "高级前端工程师", owner: "林青", stage: "面试", score: 88, updated: "今天 10:20" },
   { id: "RC-2040", name: "高越", role: "产品经理", owner: "许晴", stage: "Offer", score: 92, updated: "昨天 16:40" },
@@ -258,9 +252,26 @@ const candidateForm = reactive({
 });
 
 const currentView = computed(() => viewMeta[activeView.value]);
-const activeRoleOption = computed(() => roleOptions.find((item) => item.role === loginForm.role) ?? roleOptions[1]);
+const activeRole = computed(() => currentUser.value?.role ?? loginForm.role);
+const activeRoleOption = computed(() => roleOptions.find((item) => item.role === activeRole.value) ?? roleOptions[1]);
 const visibleNavItems = computed(() => navItems.filter((item) => activeRoleOption.value.allowedViews.includes(item.key)));
 const departments = computed(() => ["全部", ...(dashboard.value?.departments.map((item) => item.name) ?? [])]);
+const attendanceRequests = computed<AttendanceRequest[]>(() =>
+  tasks.value
+    .filter((task) => ["请假", "加班", "补卡"].includes(task.bizType))
+    .map((task) => ({
+      id: task.id,
+      employee: task.applicant,
+      type: task.bizType,
+      period: task.period ?? task.submittedAt,
+      duration: task.duration ?? "待核算",
+      status: task.status,
+    })),
+);
+
+function hasPermission(permission: string) {
+  return currentUser.value?.permissions.includes(permission) ?? false;
+}
 
 const filteredEmployees = computed(() =>
   employees.value.filter((employee) => {
@@ -306,12 +317,18 @@ async function loadAll() {
   loading.value = true;
   error.value = "";
   try {
-    [dashboard.value, employees.value, tasks.value, reports.value] = await Promise.all([
+    const canLoadEmployees = hasPermission("employee:view") || hasPermission("employee:manage") || hasPermission("self:view");
+    const canLoadReports = hasPermission("report:view") || hasPermission("audit:view");
+    const [dashboardData, employeeData, taskData, reportData] = await Promise.all([
       request<DashboardSummary>("/dashboard/summary"),
-      request<Employee[]>("/employees"),
+      canLoadEmployees ? request<Employee[]>("/employees") : Promise.resolve([]),
       request<WorkflowTask[]>("/workflow-tasks/my"),
-      request<ReportOverview>("/reports/overview"),
+      canLoadReports ? request<ReportOverview>("/reports/overview") : Promise.resolve(null),
     ]);
+    dashboard.value = dashboardData;
+    employees.value = employeeData;
+    tasks.value = taskData;
+    reports.value = reportData;
   } catch (value) {
     error.value = value instanceof Error ? value.message : "系统加载失败";
   } finally {
@@ -337,6 +354,7 @@ async function login() {
       body: JSON.stringify(loginForm),
     });
     currentUser.value = result.user;
+    setAuthToken(result.token);
     activeView.value = visibleNavItems.value[0]?.key ?? "dashboard";
     await loadAll();
     showToast(`已切换为 ${result.user.roleName}`);
@@ -348,6 +366,7 @@ async function login() {
 }
 
 function logout() {
+  clearAuthToken();
   currentUser.value = null;
   dashboard.value = null;
   employees.value = [];
@@ -369,6 +388,9 @@ function showToast(message: string) {
 }
 
 function switchView(view: ViewKey) {
+  if (!visibleNavItems.value.some((item) => item.key === view)) {
+    return;
+  }
   activeView.value = view;
   mobileMenuOpen.value = false;
 }
@@ -404,6 +426,11 @@ function selectEmployee(employee: Employee) {
 }
 
 async function handleTaskAction(task: WorkflowTask, action: "approve" | "reject") {
+  if (!hasPermission("workflow:approve")) {
+    error.value = "当前角色没有审批权限。";
+    return;
+  }
+
   try {
     const updated = await request<WorkflowTask>(`/workflow-tasks/${task.id}/action`, {
       method: "POST",
@@ -444,23 +471,39 @@ async function createEmployee() {
   }
 }
 
-function submitAttendance() {
+async function submitAttendance() {
+  if (!hasPermission("workflow:create")) {
+    error.value = "当前角色不能提交考勤申请。";
+    return;
+  }
+
   if (!attendanceForm.reason.trim()) {
     error.value = "请填写申请原因。";
     return;
   }
 
-  attendanceRequests.value.unshift({
-    id: `AT-${String(attendanceRequests.value.length + 19).padStart(3, "0")}`,
-    employee: attendanceForm.employee,
-    type: attendanceForm.type,
-    period: `${attendanceForm.start.slice(5, 16).replace("T", " ")} 至 ${attendanceForm.end.slice(5, 16).replace("T", " ")}`,
-    duration: attendanceForm.type === "补卡" ? "1 次" : "待核算",
-    status: "待审批",
-  });
-  attendanceForm.reason = "";
-  error.value = "";
-  showToast("考勤申请已提交，等待审批。");
+  if (attendanceForm.start >= attendanceForm.end) {
+    error.value = "结束时间必须晚于开始时间。";
+    return;
+  }
+
+  try {
+    const created = await request<WorkflowTask>("/workflow-tasks", {
+      method: "POST",
+      body: JSON.stringify({
+        type: attendanceForm.type,
+        start: attendanceForm.start,
+        end: attendanceForm.end,
+        reason: attendanceForm.reason.trim(),
+      }),
+    });
+    tasks.value.unshift(created);
+    attendanceForm.reason = "";
+    error.value = "";
+    showToast("考勤申请已提交，等待审批。");
+  } catch (value) {
+    error.value = value instanceof Error ? value.message : "考勤申请提交失败";
+  }
 }
 
 function submitCandidate() {
@@ -516,7 +559,7 @@ function cycleAcceptance(item: AcceptanceItem) {
     <div class="login-panel">
       <div class="brand-mark">HR</div>
       <p class="eyebrow">People Operations Suite</p>
-      <h1>知行人事管理系统</h1>
+      <h1>人事全流程与组织效能管理系统</h1>
       <p>请选择角色，并输入对应用户名和密码。登录前不会加载员工、审批、报表或验收数据。</p>
       <div class="role-grid">
         <button
@@ -560,7 +603,7 @@ function cycleAcceptance(item: AcceptanceItem) {
         <div class="brand-mark">HR</div>
         <div>
           <p class="eyebrow">People Operations Suite</p>
-          <h1>知行人事管理系统</h1>
+          <h1>人事全流程与组织效能管理系统</h1>
           <span>面向 HR、部门主管和员工服务台的一体化运营平台</span>
         </div>
       </div>
@@ -683,7 +726,7 @@ function cycleAcceptance(item: AcceptanceItem) {
                 <div class="task-actions">
                   <span :class="['status-badge', statusTone(task.status)]">{{ task.status }}</span>
                   <button
-                    v-if="task.status === '待审批'"
+                     v-if="task.status === '待审批' && hasPermission('workflow:approve')"
                     type="button"
                     class="text-button"
                     @click="handleTaskAction(task, 'approve')"
@@ -691,7 +734,7 @@ function cycleAcceptance(item: AcceptanceItem) {
                     通过
                   </button>
                   <button
-                    v-if="task.status === '待审批'"
+                     v-if="task.status === '待审批' && hasPermission('workflow:approve')"
                     type="button"
                     class="text-button"
                     @click="handleTaskAction(task, 'reject')"
@@ -760,7 +803,7 @@ function cycleAcceptance(item: AcceptanceItem) {
               <p class="section-label">组织编制</p>
               <h3>编制使用率与管理者分布</h3>
             </div>
-            <button type="button" class="secondary-button" @click="showToast('编制调整草稿已创建')">调整编制</button>
+            <button v-if="hasPermission('employee:manage')" type="button" class="secondary-button" @click="showToast('编制调整草稿已创建')">调整编制</button>
           </div>
           <div class="department-grid">
             <article v-for="department in dashboard?.departments ?? []" :key="department.id" class="department-card">
@@ -913,7 +956,7 @@ function cycleAcceptance(item: AcceptanceItem) {
               <p class="section-label">入转调离</p>
               <h3>每条流程都能逐节点推进</h3>
             </div>
-            <button type="button" class="primary-button" @click="showToast('新异动流程草稿已创建')">发起流程</button>
+            <button v-if="hasPermission('workflow:approve')" type="button" class="primary-button" @click="showToast('新异动流程草稿已创建')">发起流程</button>
           </div>
           <div class="lifecycle-list">
             <article v-for="item in lifecycleCases" :key="item.id" class="lifecycle-card">
@@ -930,9 +973,9 @@ function cycleAcceptance(item: AcceptanceItem) {
               </div>
               <div class="card-footer">
                 <span :class="['status-badge', statusTone(item.status)]">{{ item.status }}</span>
-                <button type="button" class="text-button" :disabled="item.progress === 100" @click="advanceLifecycle(item)">
-                  推进节点
-                </button>
+                 <button v-if="hasPermission('workflow:approve')" type="button" class="text-button" :disabled="item.progress === 100" @click="advanceLifecycle(item)">
+                   推进节点
+                 </button>
               </div>
             </article>
           </div>
@@ -947,12 +990,13 @@ function cycleAcceptance(item: AcceptanceItem) {
               <h3>请假、加班和补卡共用同一表单</h3>
             </div>
           </div>
-          <form class="form-grid" @submit.prevent="submitAttendance">
+          <form v-if="hasPermission('workflow:create')" class="form-grid" @submit.prevent="submitAttendance">
             <label>
               <span>申请人</span>
-              <select v-model="attendanceForm.employee">
+              <select v-if="hasPermission('employee:view')" v-model="attendanceForm.employee">
                 <option v-for="employee in employees" :key="employee.id">{{ employee.name }}</option>
               </select>
+              <input v-else :value="currentUser?.name" type="text" disabled />
             </label>
             <label>
               <span>申请类型</span>
@@ -977,6 +1021,11 @@ function cycleAcceptance(item: AcceptanceItem) {
             <div class="form-note span-two">提交后自动进入审批队列，并保留移动端可查看的状态结果。</div>
             <button type="submit" class="primary-button span-two">提交审批</button>
           </form>
+          <div v-else class="permission-state">
+            <span class="status-badge neutral">只读</span>
+            <strong>当前角色可查看和处理审批</strong>
+            <p>提交入口仅对普通员工开放，审批结果会同步显示在右侧列表。</p>
+          </div>
         </section>
 
         <section class="panel">
@@ -987,6 +1036,7 @@ function cycleAcceptance(item: AcceptanceItem) {
             </div>
           </div>
           <div class="simple-list">
+            <p v-if="attendanceRequests.length === 0" class="empty-state">暂无可查看的考勤申请。</p>
             <article v-for="requestItem in attendanceRequests" :key="requestItem.id" class="simple-row">
               <div>
                 <strong>{{ requestItem.employee }} · {{ requestItem.type }}</strong>
@@ -1014,7 +1064,7 @@ function cycleAcceptance(item: AcceptanceItem) {
                 <p class="section-label">员工服务请求</p>
                 <h3>按 SLA 处理证明、报销和资产事务</h3>
               </div>
-              <button type="button" class="primary-button" @click="showToast('新服务请求草稿已创建')">发起服务申请</button>
+              <button v-if="hasPermission('service:create')" type="button" class="primary-button" @click="showToast('新服务请求草稿已创建')">发起服务申请</button>
             </div>
             <div class="simple-list">
               <article v-for="item in serviceRequests" :key="item.id" class="service-card">
@@ -1025,7 +1075,7 @@ function cycleAcceptance(item: AcceptanceItem) {
                 </div>
                 <div class="card-footer">
                   <span :class="['status-badge', statusTone(item.status)]">{{ item.status }}</span>
-                  <button type="button" class="text-button" :disabled="item.status === '已完成'" @click="resolveService(item)">
+                  <button v-if="hasPermission('employee:manage')" type="button" class="text-button" :disabled="item.status === '已完成'" @click="resolveService(item)">
                     完成处理
                   </button>
                 </div>
@@ -1085,7 +1135,7 @@ function cycleAcceptance(item: AcceptanceItem) {
                 <p class="section-label">培训计划</p>
                 <h3>课程推进与完成率</h3>
               </div>
-              <button type="button" class="secondary-button" @click="showToast('培训计划草稿已创建')">新建计划</button>
+              <button v-if="hasPermission('employee:manage')" type="button" class="secondary-button" @click="showToast('培训计划草稿已创建')">新建计划</button>
             </div>
             <div class="simple-list">
               <article v-for="item in [{ name: '新员工入职训练营', progress: 78, copy: '12/16 人完成' }, { name: '管理者绩效面谈', progress: 55, copy: '11/20 人完成' }, { name: '信息安全年度培训', progress: 96, copy: '72/75 人完成' }]" :key="item.name" class="training-card">
@@ -1150,7 +1200,7 @@ function cycleAcceptance(item: AcceptanceItem) {
               <p class="section-label">风险台账</p>
               <h3>合同、审批与档案缺口</h3>
             </div>
-            <button type="button" class="secondary-button" @click="showToast('报表导出任务已创建')">导出报告</button>
+            <button v-if="hasPermission('report:view')" type="button" class="secondary-button" @click="showToast('报表导出任务已创建')">导出报告</button>
           </div>
           <div class="simple-list">
             <article v-for="item in reports.riskItems" :key="item.item" class="risk-row large">
@@ -1185,7 +1235,7 @@ function cycleAcceptance(item: AcceptanceItem) {
               <p class="section-label">验收清单</p>
               <h3>逐项推进状态并保留责任人</h3>
             </div>
-            <button type="button" class="secondary-button" @click="showToast('验收报告草稿已生成')">生成验收报告</button>
+             <button v-if="hasPermission('employee:manage') || hasPermission('audit:view')" type="button" class="secondary-button" @click="showToast('验收报告草稿已生成')">生成验收报告</button>
           </div>
           <div class="simple-list">
             <article v-for="item in acceptanceItems" :key="item.item" class="acceptance-card">

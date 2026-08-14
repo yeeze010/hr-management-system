@@ -26,7 +26,7 @@
   </defs>
   <rect width="980" height="1040" fill="#0f172a"/>
   <rect width="980" height="1040" fill="url(#grid)"/>
-  <text x="30" y="38" class="title">HR Management System - 人事业务主流程</text>
+  <text x="30" y="38" class="title">人事全流程与组织效能管理系统 - 人事业务主流程</text>
   <text x="30" y="58" class="subt">覆盖招聘、入职、在职管理、考勤假勤、薪酬绩效、异动与离职验收链路</text>
 
   <rect x="390" y="90" width="200" height="58" rx="25" class="end"/>

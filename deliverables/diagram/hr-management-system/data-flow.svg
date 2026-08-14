@@ -19,7 +19,7 @@
   </defs>
   <rect width="1120" height="760" fill="#0f172a"/>
   <rect width="1120" height="760" fill="url(#grid)"/>
-  <text x="30" y="38" class="title">HR Management System - 数据流图</text>
+  <text x="30" y="38" class="title">人事全流程与组织效能管理系统 - 数据流图</text>
   <text x="30" y="58" class="subt">员工主数据、审批单据、附件、薪资与审计数据在系统内的主要流向</text>
 
   <rect x="50" y="140" width="145" height="58" rx="8" class="entity"/><text x="122.5" y="164" class="label">员工</text><text x="122.5" y="181" class="small">自助申请 / 查询</text>

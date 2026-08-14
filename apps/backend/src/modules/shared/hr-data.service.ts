@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateEmployeeDto } from "../employees/create-employee.dto";
+import type { AuthUser } from "../auth/auth.service";
 
 export type EmployeeStatus = "在职" | "试用" | "待入职" | "离职";
 
@@ -31,6 +32,10 @@ export interface WorkflowTask {
   priority: "P0" | "P1" | "P2";
   submittedAt: string;
   status: "待审批" | "已通过" | "已驳回";
+  applicantId?: string;
+  period?: string;
+  duration?: string;
+  reason?: string;
 }
 
 export interface ContractRisk {
@@ -159,24 +164,34 @@ export class HrDataService {
     this.buildOnboardingChecklist(this.employees[4])
   ];
 
-  getDashboard() {
-    const activeEmployees = this.employees.filter((item) => item.status !== "离职").length;
-    const contractRisks = this.getContractRisks().filter((item) => item.riskLevel === "high" || item.riskLevel === "critical");
+  getDashboard(user: AuthUser) {
+    const canViewDirectory = user.permissions.includes("employee:view") || user.permissions.includes("employee:manage");
+    const visibleEmployees = canViewDirectory ? this.employees : this.employees.filter((item) => item.name === user.name);
+    const visibleDepartments = canViewDirectory
+      ? this.departments
+      : this.departments
+          .filter((department) => visibleEmployees.some((employee) => employee.department === department.name))
+          .map((department) => ({ ...department, headcount: visibleEmployees.filter((employee) => employee.department === department.name).length }));
+    const activeEmployees = visibleEmployees.filter((item) => item.status !== "离职").length;
+    const contractRisks = this.getContractRisks().filter(
+      (item) => visibleEmployees.some((employee) => employee.id === item.employeeId) && (item.riskLevel === "high" || item.riskLevel === "critical"),
+    );
+    const visibleTasks = this.listTasks(user);
 
     return {
       metrics: [
         { label: "在册员工", value: activeEmployees, trend: "本月净增 3 人" },
-        { label: "待审批流程", value: this.tasks.filter((item) => item.status === "待审批").length, trend: "含 1 个 P0 事项" },
+        { label: "待审批流程", value: visibleTasks.filter((item) => item.status === "待审批").length, trend: "含 1 个 P0 事项" },
         { label: "90 天内合同到期", value: contractRisks.length, trend: "需完成续签准备" },
-        { label: "本月待入职", value: this.employees.filter((item) => item.status === "待入职").length, trend: "自动生成入职清单" }
+        { label: "本月待入职", value: visibleEmployees.filter((item) => item.status === "待入职").length, trend: "自动生成入职清单" }
       ],
-      departments: this.departments,
-      recentEmployees: this.employees.slice(0, 5),
-      pendingTasks: this.tasks.filter((item) => item.status === "待审批")
+      departments: visibleDepartments,
+      recentEmployees: visibleEmployees.slice(0, 5),
+      pendingTasks: visibleTasks.filter((item) => item.status === "待审批")
     };
   }
 
-  listEmployees(keyword = "", department = "全部") {
+  listEmployees(keyword = "", department = "全部", ownerName?: string) {
     const normalized = keyword.trim().toLowerCase();
 
     return this.employees.filter((item) => {
@@ -186,7 +201,8 @@ export class HrDataService {
         item.employeeNo.toLowerCase().includes(normalized) ||
         item.position.toLowerCase().includes(normalized);
       const matchesDepartment = department === "全部" || item.department === department;
-      return matchesKeyword && matchesDepartment;
+      const matchesOwner = !ownerName || item.name === ownerName;
+      return matchesKeyword && matchesDepartment && matchesOwner;
     });
   }
 
@@ -215,8 +231,29 @@ export class HrDataService {
     return this.departments;
   }
 
-  listTasks() {
+  listTasks(user: AuthUser) {
+    if (user.role === "employee") {
+      return this.tasks.filter((item) => item.applicantId === user.id || (!item.applicantId && item.applicant === user.name));
+    }
     return this.tasks;
+  }
+
+  createAttendanceRequest(user: Pick<AuthUser, "id" | "name">, input: { type: string; start: string; end: string; reason: string }) {
+    const task: WorkflowTask = {
+      id: `wf-${String(this.tasks.length + 1).padStart(3, "0")}`,
+      title: `${user.name}${input.type}申请`,
+      applicant: user.name,
+      applicantId: user.id,
+      bizType: input.type,
+      priority: input.type === "请假" ? "P1" : "P2",
+      submittedAt: new Date().toISOString().slice(0, 16).replace("T", " "),
+      status: "待审批",
+      period: `${input.start} 至 ${input.end}`,
+      duration: input.type === "补卡" ? "1 次" : "待核算",
+      reason: input.reason,
+    };
+    this.tasks.unshift(task);
+    return task;
   }
 
   approveTask(id: string, action: "approve" | "reject") {

@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { AuthController } from "./auth/auth.controller";
+import { AuthService } from "./auth/auth.service";
 import { DashboardController } from "./dashboard/dashboard.controller";
 import { EmployeesController } from "./employees/employees.controller";
 import { HealthController } from "./health/health.controller";
@@ -18,6 +19,6 @@ import { HrDataService } from "./shared/hr-data.service";
     WorkflowController,
     WorkforceIntelligenceController,
   ],
-  providers: [HrDataService],
+  providers: [AuthService, HrDataService],
 })
 export class AppModule {}

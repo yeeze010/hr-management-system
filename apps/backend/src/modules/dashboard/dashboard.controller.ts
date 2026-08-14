@@ -1,12 +1,13 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Req } from "@nestjs/common";
+import { AuthRequest, AuthService } from "../auth/auth.service";
 import { HrDataService } from "../shared/hr-data.service";
 
 @Controller("dashboard")
 export class DashboardController {
-  constructor(private readonly data: HrDataService) {}
+  constructor(private readonly auth: AuthService, private readonly data: HrDataService) {}
 
   @Get("summary")
-  summary() {
-    return this.data.getDashboard();
+  summary(@Req() request: AuthRequest) {
+    return this.data.getDashboard(this.auth.authenticateRequest(request));
   }
 }

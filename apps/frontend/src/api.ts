@@ -20,6 +20,10 @@ export interface WorkflowTask {
   priority: "P0" | "P1" | "P2";
   submittedAt: string;
   status: "待审批" | "已通过" | "已驳回";
+  applicantId?: string;
+  period?: string;
+  duration?: string;
+  reason?: string;
 }
 
 export interface DashboardSummary {
@@ -36,18 +40,32 @@ export interface ReportOverview {
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+let authToken = "";
+
+export function setAuthToken(token: string) {
+  authToken = token;
+}
+
+export function clearAuthToken() {
+  authToken = "";
+}
 
 export async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const headers = new Headers(options?.headers);
+  headers.set("Content-Type", "application/json");
+  if (authToken) {
+    headers.set("Authorization", `Bearer ${authToken}`);
+  }
+
   const response = await fetch(`${API_BASE}/api${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
     ...options,
+    headers,
   });
 
   if (!response.ok) {
-    throw new Error(`请求失败：${response.status}`);
+    const payload = (await response.json().catch(() => null)) as { message?: string | string[] } | null;
+    const message = Array.isArray(payload?.message) ? payload.message.join("；") : payload?.message;
+    throw new Error(message || `请求失败：${response.status}`);
   }
 
   return response.json() as Promise<T>;

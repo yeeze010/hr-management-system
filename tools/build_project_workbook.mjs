@@ -4,7 +4,7 @@ import { SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
 const root = path.resolve(".");
 const outDir = path.join(root, "deliverables", "spreadsheets");
-const outPath = path.join(outDir, "HR管理系统项目管理工作簿.xlsx");
+const outPath = path.join(outDir, "人事全流程与组织效能管理系统项目管理工作簿.xlsx");
 
 const workbook = Workbook.create();
 const overview = workbook.worksheets.add("项目总览");
@@ -32,13 +32,13 @@ function styleBody(sheet, range) {
   r.format.borders = { preset: "all", style: "thin", color: "#D9E2F3" };
 }
 
-write(overview, "A1:H1", [["HR 管理系统项目总览", "", "", "", "", "", "", ""]]);
+write(overview, "A1:H1", [["人事全流程与组织效能管理系统项目总览", "", "", "", "", "", "", ""]]);
 overview.getRange("A1:H1").merge();
 overview.getRange("A1:H1").format.fill = "#EAF2F8";
 overview.getRange("A1:H1").format.font = { bold: true, size: 16, color: "#1F4E79" };
 overview.getRange("A1:H1").format.horizontalAlignment = "center";
 write(overview, "A3:B10", [
-  ["项目名称", "HR 管理系统"],
+  ["项目名称", "人事全流程与组织效能管理系统"],
   ["推荐技术栈", "Vue 3 + TypeScript / Spring Boot / PostgreSQL / Redis / MinIO / Docker + Nginx"],
   ["项目周期", "16 周"],
   ["优先级范围", "P0 平台与核心 HR；P1 招聘、薪酬、报表；P2 绩效增强"],

@@ -38,7 +38,7 @@
   <rect width="1180" height="760" fill="#0f172a"/>
   <rect width="1180" height="760" fill="url(#grid)"/>
 
-  <text x="34" y="38" class="title">HR Management System - 系统架构图</text>
+  <text x="34" y="38" class="title">人事全流程与组织效能管理系统 - 系统架构图</text>
   <text x="34" y="58" class="subtitle">Vue 3 + TypeScript / Spring Boot / PostgreSQL / Redis / MinIO / Docker + Nginx</text>
 
   <rect x="260" y="80" width="880" height="590" rx="14" class="region"/>
